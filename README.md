@@ -2,7 +2,7 @@
 
 A polished, fully client-side Battleship game built for an interview assignment. Play a standard 10×10 game against a simple but competent AI opponent.
 
-**Live demo:** [https://battleship-ai-xxx.devinapps.com](https://battleship-ai-xxx.devinapps.com)
+**Live demo:** [https://dist-okcfszyd.devinapps.com](https://dist-okcfszyd.devinapps.com)
 
 ## Features
 
@@ -11,8 +11,11 @@ A polished, fully client-side Battleship game built for an interview assignment.
 - Manual ship placement with horizontal/vertical rotation
 - One-click **Randomize Fleet** for quick setup
 - Clear hit, miss, sunk, and remaining-ship indicators
+- Live scoreboard: hits, misses, and moves
 - Turn-based play with alternating turns
 - Win/loss detection and a **Play Again** reset flow
+- Local "Best Wins" ranking by number of moves
+- Collapsible **How to Play** instructions for first-time players
 - Responsive layout for desktop and mobile
 
 ## Tech stack

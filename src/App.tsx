@@ -35,6 +35,8 @@ function App() {
   const [hoverCell, setHoverCell] = useState<Position | null>(null);
   const [message, setMessage] = useState<string>('Place your fleet');
   const [sunkMessage, setSunkMessage] = useState<string>('');
+  const [moves, setMoves] = useState(0);
+  const [rankings, setRankings] = useState<{ moves: number; date: string }[]>([]);
 
   const playerBoardRef = useRef(playerBoard);
   const aiStateRef = useRef(aiState);
@@ -44,6 +46,15 @@ function App() {
   aiStateRef.current = aiState;
 
   const unplacedShips = getUnplacedShipNames(playerBoard);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('battleship-rankings');
+      if (saved) setRankings(JSON.parse(saved));
+    } catch {
+      // ignore malformed localStorage
+    }
+  }, []);
 
   useEffect(() => {
     if (phase !== 'ai') return;
@@ -104,7 +115,32 @@ function App() {
     setHoverCell(null);
     setMessage('Place your fleet');
     setSunkMessage('');
+    setMoves(0);
     firingRef.current = false;
+  }
+
+  function saveRanking(finalMoves: number) {
+    const entry = { moves: finalMoves, date: new Date().toLocaleDateString() };
+    const next = [...rankings, entry].sort((a, b) => a.moves - b.moves);
+    setRankings(next);
+    try {
+      localStorage.setItem('battleship-rankings', JSON.stringify(next));
+    } catch {
+      // ignore storage errors
+    }
+  }
+
+  function getScore(board: Board) {
+    let hits = 0;
+    let misses = 0;
+    for (let row = 0; row < 10; row++) {
+      for (let col = 0; col < 10; col++) {
+        const cell = board.cells[row][col];
+        if (cell.state === 'hit' && cell.ship) hits++;
+        else if (cell.state === 'miss') misses++;
+      }
+    }
+    return { hits, misses, shots: hits + misses };
   }
 
   function randomizePlayerFleet() {
@@ -187,6 +223,8 @@ function App() {
     if (cell.state !== 'empty') return;
 
     firingRef.current = true;
+    const nextMoves = moves + 1;
+    setMoves(nextMoves);
     const { board: nextBoard, result: fireResult } = fireAt(enemyBoard, row, col);
     setEnemyBoard(nextBoard);
 
@@ -209,6 +247,7 @@ function App() {
       setMessage(`${msg} You win!`);
       setPhase('won');
       firingRef.current = false;
+      saveRanking(nextMoves);
     } else {
       setMessage(`${msg} AI's turn...`);
       setPhase('ai');
@@ -281,6 +320,34 @@ function App() {
             Start Game
           </button>
         </div>
+
+        <details className="help">
+          <summary>How to Play</summary>
+          <ol>
+            <li>Select a ship and tap a cell on Your Fleet to place it.</li>
+            <li>Use <strong>Rotate</strong> to switch direction, or <strong>Randomize Fleet</strong> for instant setup.</li>
+            <li>Click <strong>Start Game</strong>.</li>
+            <li>Tap cells on the Enemy Fleet to fire. Red X = hit, dot = miss.</li>
+            <li>Sink every enemy ship before the AI sinks yours.</li>
+          </ol>
+        </details>
+
+        <div className="ranking">
+          <h3 className="ranking-title">Best Wins</h3>
+          {rankings.length === 0 ? (
+            <p className="ranking-empty">No wins yet — sink the enemy fleet to set a record.</p>
+          ) : (
+            <ol className="ranking-list">
+              {rankings.map((r, i) => (
+                <li key={i}>
+                  <span>#{i + 1}</span>
+                  <span className="ranking-moves">{r.moves} moves</span>
+                  <span className="ranking-date">{r.date}</span>
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
       </div>
     );
   }
@@ -320,6 +387,20 @@ function App() {
                 onCellClick={handleEnemyCellClick}
               />
               <div className="panel game-panel">
+                <div className="scoreboard">
+                  <div className="score-item">
+                    <span>Hits</span>
+                    <strong>{getScore(enemyBoard).hits}</strong>
+                  </div>
+                  <div className="score-item">
+                    <span>Misses</span>
+                    <strong>{getScore(enemyBoard).misses}</strong>
+                  </div>
+                  <div className="score-item">
+                    <span>Moves</span>
+                    <strong>{moves}</strong>
+                  </div>
+                </div>
                 <h3 className="fleet-status-title">Enemy Ships</h3>
                 <ul className="fleet-list">
                   {enemyBoard.ships.map((ship) => (

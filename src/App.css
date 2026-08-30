@@ -226,6 +226,101 @@
   padding: 1rem 0;
 }
 
+.help {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.help summary {
+  font-weight: 600;
+  color: var(--text-h);
+  cursor: pointer;
+  user-select: none;
+}
+
+.help ol {
+  margin: 0.5rem 0 0;
+  padding-left: 1.2rem;
+  line-height: 1.5;
+}
+
+.help li {
+  margin-bottom: 0.25rem;
+}
+
+.ranking {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.ranking-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+  color: var(--text-h);
+}
+
+.ranking-empty {
+  font-size: 0.85rem;
+  color: var(--text);
+  margin: 0;
+}
+
+.ranking-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.ranking-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.5rem;
+  background: var(--bg);
+  border-radius: 6px;
+}
+
+.ranking-moves {
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.ranking-date {
+  font-size: 0.8rem;
+  color: var(--text);
+}
+
+.scoreboard {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background: var(--bg);
+  border-radius: 8px;
+}
+
+.score-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  font-size: 0.75rem;
+  color: var(--text);
+}
+
+.score-item strong {
+  font-size: 1.1rem;
+  color: var(--text-h);
+}
+
 @media (max-width: 768px) {
   .game {
     grid-template-columns: 1fr;
