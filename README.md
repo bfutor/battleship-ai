@@ -4,6 +4,8 @@ A polished, fully client-side Battleship game built for an interview assignment.
 
 **Live demo:** [https://dist-okcfszyd.devinapps.com](https://dist-okcfszyd.devinapps.com)
 
+**Repository:** [https://github.com/bfutor/battleship-ai](https://github.com/bfutor/battleship-ai)
+
 ## Features
 
 - Human vs. AI on a 10×10 grid
