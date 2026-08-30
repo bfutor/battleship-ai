@@ -1,6 +1,6 @@
 # Battleship AI
 
-A polished, fully client-side Battleship game built for an interview assignment. Play a standard 10×10 game against a simple but competent AI opponent.
+A polished, fully client-side Battleship game. Play a standard 10×10 game against a simple but competent AI opponent.
 
 **Live demo:** [https://dist-okcfszyd.devinapps.com](https://dist-okcfszyd.devinapps.com)
 
