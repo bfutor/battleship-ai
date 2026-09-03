@@ -682,21 +682,21 @@ function App({ transportFactory }: AppProps) {
             className="mode-card"
             onClick={hostGame}
             disabled={!onlineAvailable}
-            aria-describedby={onlineAvailable ? undefined : 'online-unavailable'}
           >
             <span className="mode-icon" aria-hidden="true">
               🔗
             </span>
-            <span className="mode-title">Play a Friend</span>
-            <span className="mode-desc">Create a private room and share an invite link for real-time play.</span>
+            <span className="mode-title">
+              Play a Friend
+              {!onlineAvailable && <span className="mode-badge">Coming soon</span>}
+            </span>
+            <span className="mode-desc">
+              {onlineAvailable
+                ? 'Create a private room and share an invite link for real-time play.'
+                : 'Invite a friend with a shareable link and battle in real time.'}
+            </span>
           </button>
         </div>
-        {!onlineAvailable && (
-          <p id="online-unavailable" className="menu-note">
-            Online play needs <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code>. See the
-            README for setup.
-          </p>
-        )}
         <div className="panel menu-panel">
           <HowToPlay open />
           {renderRanking()}

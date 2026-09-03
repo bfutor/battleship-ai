@@ -31,7 +31,7 @@ describe('App component', () => {
   it('disables online play when no realtime backend is configured', () => {
     render(<App />);
     expect(screen.getByRole('button', { name: /Play a Friend/ }).closest('button')).toBeDisabled();
-    expect(screen.getByText(/Online play needs/)).toBeInTheDocument();
+    expect(screen.getByText('Coming soon')).toBeInTheDocument();
   });
 
   it('enters the setup phase when choosing Play vs AI', () => {
