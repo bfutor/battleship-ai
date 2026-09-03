@@ -133,6 +133,8 @@ export function BoardGrid({
           onClick={() => onCellClick && onCellClick(row, col)}
           onMouseEnter={() => onCellHover && onCellHover(row, col)}
           onMouseLeave={() => onCellLeave && onCellLeave()}
+          onFocus={() => onCellHover && onCellHover(row, col)}
+          onBlur={() => onCellLeave && onCellLeave()}
         >
           {!isPreview && <CellMark visual={visual} />}
         </button>

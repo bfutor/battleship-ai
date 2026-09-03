@@ -75,6 +75,36 @@ describe('App component', () => {
     expect(enemyCells(container).length).toBeGreaterThan(0);
   });
 
+  it('result modal auto-focuses, traps Tab, and closes on Escape', () => {
+    vi.useFakeTimers();
+    const { container } = render(<App />);
+    startAiGame();
+
+    // Fire at every cell so the enemy fleet is sunk regardless of placement.
+    for (let i = 0; i < 100; i++) {
+      const cells = enemyCells(container);
+      if (cells.length === 0) break;
+      fireEvent.click(cells[0]);
+      act(() => {
+        vi.advanceTimersByTime(1500);
+      });
+      if (screen.queryByRole('dialog')) break;
+    }
+
+    const dialog = screen.getByRole('dialog');
+    const buttons = within(dialog).getAllByRole('button');
+    expect(document.activeElement).toBe(buttons[0]);
+
+    fireEvent.keyDown(dialog, { key: 'Tab', shiftKey: true });
+    expect(document.activeElement).toBe(buttons[buttons.length - 1]);
+    fireEvent.keyDown(dialog, { key: 'Tab' });
+    expect(document.activeElement).toBe(buttons[0]);
+
+    fireEvent.keyDown(dialog, { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getByText('Show result')).toBeInTheDocument();
+  }, 20000);
+
   it('returns to the menu from a game', () => {
     render(<App />);
     fireEvent.click(screen.getByRole('button', { name: /Play vs AI/ }));

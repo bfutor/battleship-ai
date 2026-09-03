@@ -1,4 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type KeyboardEvent,
+  type ReactNode,
+} from 'react';
 import { BoardGrid } from './components/Board';
 import './App.css';
 import type { Board, Orientation, Position, ShipName } from './logic/types';
@@ -30,6 +39,58 @@ import {
 } from './logic/multiplayer';
 
 const ROW_LABELS = 'ABCDEFGHIJ'.split('');
+
+const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+interface ModalOverlayProps {
+  labelledBy: string;
+  onClose: () => void;
+  children: ReactNode;
+}
+
+function ModalOverlay({ labelledBy, onClose, children }: ModalOverlayProps) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const previous = document.activeElement as HTMLElement | null;
+    const first = ref.current?.querySelector<HTMLElement>(FOCUSABLE);
+    first?.focus();
+    return () => previous?.focus();
+  }, []);
+
+  function handleKeyDown(e: KeyboardEvent<HTMLDivElement>) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      onClose();
+      return;
+    }
+    if (e.key !== 'Tab' || !ref.current) return;
+    const items = Array.from(ref.current.querySelectorAll<HTMLElement>(FOCUSABLE));
+    if (items.length === 0) return;
+    const first = items[0];
+    const last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
+
+  return (
+    <div
+      ref={ref}
+      className="overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={labelledBy}
+      onKeyDown={handleKeyDown}
+    >
+      {children}
+    </div>
+  );
+}
 
 function formatPosition(pos: Position): string {
   return `${ROW_LABELS[pos.row]}${pos.col + 1}`;
@@ -888,7 +949,7 @@ function App({ transportFactory }: AppProps) {
     const won = phase === 'won';
     const score = getScore(enemyBoard);
     return (
-      <div className="overlay" role="dialog" aria-modal="true" aria-labelledby="result-title">
+      <ModalOverlay labelledBy="result-title" onClose={() => setShowResult(false)}>
         {won && (
           <div className="confetti" aria-hidden="true">
             {Array.from({ length: 24 }, (_, i) => (
@@ -931,7 +992,7 @@ function App({ transportFactory }: AppProps) {
             </button>
           </div>
         </div>
-      </div>
+      </ModalOverlay>
     );
   }
 
