@@ -2,7 +2,7 @@
 
 A polished Battleship game. Play a standard 10×10 game against a simple but competent AI opponent, or invite a friend with a shareable link for realtime human-vs-human play.
 
-**Live demo:** [https://dist-okcfszyd.devinapps.com](https://dist-okcfszyd.devinapps.com)
+**Play now:** [https://dist-vtepytuc.devinapps.com](https://dist-vtepytuc.devinapps.com) (AI mode; online play is coming soon)
 
 **Repository:** [https://github.com/bfutor/battleship-ai](https://github.com/bfutor/battleship-ai)
 
@@ -50,7 +50,7 @@ Multiplayer uses [Supabase Realtime](https://supabase.com/docs/guides/realtime) 
    | `VITE_SUPABASE_URL` | Your Supabase project URL |
    | `VITE_SUPABASE_ANON_KEY` | Your Supabase anon (public) key |
 
-3. Restart `npm run dev`. The **Play a Friend** card is disabled until both variables are present.
+3. Restart `npm run dev`. The **Play a Friend** card shows **Coming soon** and stays disabled until both variables are present.
 
 For production builds set the same variables in your hosting provider's environment.
 
