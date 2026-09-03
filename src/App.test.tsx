@@ -31,7 +31,7 @@ describe('App component', () => {
   it('disables online play when no realtime backend is configured', () => {
     render(<App />);
     expect(screen.getByRole('button', { name: /Play a Friend/ }).closest('button')).toBeDisabled();
-    expect(screen.getByText(/Online play needs/)).toBeInTheDocument();
+    expect(screen.getByText('Coming soon')).toBeInTheDocument();
   });
 
   it('enters the setup phase when choosing Play vs AI', () => {
@@ -52,7 +52,7 @@ describe('App component', () => {
 
     fireEvent.click(startButtons[0]);
     expect(screen.getByText('Your turn')).toBeInTheDocument();
-    expect(screen.getByText(/fire at the enemy/)).toBeInTheDocument();
+    expect(screen.getByText(/Fire at the enemy/)).toBeInTheDocument();
   });
 
   it('lets the player fire a shot and advances to the AI turn', () => {
@@ -74,6 +74,36 @@ describe('App component', () => {
     expect(screen.getByText('Your turn')).toBeInTheDocument();
     expect(enemyCells(container).length).toBeGreaterThan(0);
   });
+
+  it('result modal auto-focuses, traps Tab, and closes on Escape', () => {
+    vi.useFakeTimers();
+    const { container } = render(<App />);
+    startAiGame();
+
+    // Fire at every cell so the enemy fleet is sunk regardless of placement.
+    for (let i = 0; i < 100; i++) {
+      const cells = enemyCells(container);
+      if (cells.length === 0) break;
+      fireEvent.click(cells[0]);
+      act(() => {
+        vi.advanceTimersByTime(1500);
+      });
+      if (screen.queryByRole('dialog')) break;
+    }
+
+    const dialog = screen.getByRole('dialog');
+    const buttons = within(dialog).getAllByRole('button');
+    expect(document.activeElement).toBe(buttons[0]);
+
+    fireEvent.keyDown(dialog, { key: 'Tab', shiftKey: true });
+    expect(document.activeElement).toBe(buttons[buttons.length - 1]);
+    fireEvent.keyDown(dialog, { key: 'Tab' });
+    expect(document.activeElement).toBe(buttons[0]);
+
+    fireEvent.keyDown(dialog, { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getByText('Show result')).toBeInTheDocument();
+  }, 20000);
 
   it('returns to the menu from a game', () => {
     render(<App />);
@@ -123,7 +153,7 @@ describe('online multiplayer flow', () => {
     await waitFor(() => {
       expect(within(host.container).getByText("Opponent's turn")).toBeInTheDocument();
     });
-    expect(within(host.container).getByText(/You fired at A1 — (hit!|miss\.)/)).toBeInTheDocument();
+    expect(within(host.container).getByText(/You fired at A1: (hit!|miss\.)/)).toBeInTheDocument();
     await within(guest.container).findByText(/Opponent fired at A1/);
     expect(within(guest.container).getByText('Your turn')).toBeInTheDocument();
 
@@ -134,6 +164,6 @@ describe('online multiplayer flow', () => {
 
     // Guest leaves: host sees the disconnect.
     guest.unmount();
-    await within(host.container).findByText('Opponent disconnected — waiting for them to rejoin');
+    await within(host.container).findByText('Opponent disconnected. Waiting for them to rejoin');
   });
 });

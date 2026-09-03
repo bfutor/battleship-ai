@@ -2,7 +2,7 @@
 
 A polished Battleship game. Play a standard 10×10 game against a simple but competent AI opponent, or invite a friend with a shareable link for realtime human-vs-human play.
 
-**Live demo:** [https://dist-okcfszyd.devinapps.com](https://dist-okcfszyd.devinapps.com)
+**Play now:** [https://dist-vtepytuc.devinapps.com](https://dist-vtepytuc.devinapps.com) (AI mode; online play is coming soon)
 
 **Repository:** [https://github.com/bfutor/battleship-ai](https://github.com/bfutor/battleship-ai)
 
@@ -40,7 +40,7 @@ Open `http://localhost:5173/` in your browser. AI mode works out of the box; onl
 
 ### Online multiplayer setup
 
-Multiplayer uses [Supabase Realtime](https://supabase.com/docs/guides/realtime) channels — no database tables or server code are needed, just a free Supabase project.
+Multiplayer uses [Supabase Realtime](https://supabase.com/docs/guides/realtime) channels - no database tables or server code are needed, just a free Supabase project.
 
 1. Create a project at [supabase.com](https://supabase.com) and copy the **Project URL** and **anon public** key from *Project Settings → API*.
 2. Copy `.env.example` to `.env` and fill in:
@@ -50,7 +50,7 @@ Multiplayer uses [Supabase Realtime](https://supabase.com/docs/guides/realtime) 
    | `VITE_SUPABASE_URL` | Your Supabase project URL |
    | `VITE_SUPABASE_ANON_KEY` | Your Supabase anon (public) key |
 
-3. Restart `npm run dev`. The **Play a Friend** card is disabled until both variables are present.
+3. Restart `npm run dev`. The **Play a Friend** card shows **Coming soon** and stays disabled until both variables are present.
 
 For production builds set the same variables in your hosting provider's environment.
 
@@ -59,7 +59,7 @@ For production builds set the same variables in your hosting provider's environm
 - Choosing **Play a Friend** generates a `roomId` with `crypto.randomUUID()`, joins the Supabase channel `battleship:<roomId>`, and sets the URL hash to `#/game/<roomId>`.
 - The invite card shows the full link with a **Copy** button. Anyone opening `https://<host>/#/game/<roomId>` auto-joins that room as the guest; a third visitor is told the room is full.
 - Both players place their fleets locally and press **Ready**. The match starts when both are ready; the host fires first.
-- Turns alternate over realtime events. Only shot coordinates and their result (hit / miss / sunk, plus the sunk ship's cells) are ever sent — nobody's ship layout leaves their browser until a ship is sunk.
+- Turns alternate over realtime events. Only shot coordinates and their result (hit / miss / sunk, plus the sunk ship's cells) are ever sent - nobody's ship layout leaves their browser until a ship is sunk.
 - Status messages cover waiting for an opponent, waiting for the opponent to place ships, and opponent disconnects.
 
 The transport is abstracted behind a small `RoomTransport` interface in `src/logic/multiplayer.ts`, so swapping Supabase for another backend (Firebase, PeerJS/WebRTC) only requires a new transport factory.
