@@ -7,6 +7,9 @@ interface BoardProps {
   label: string;
   isPlayerView: boolean;
   disabled?: boolean;
+  active?: boolean;
+  turnLabel?: string;
+  pendingCell?: Position | null;
   previewCells?: Position[];
   previewValid?: boolean;
   onCellClick?: (row: number, col: number) => void;
@@ -16,28 +19,57 @@ interface BoardProps {
 
 const ROW_LABELS = 'ABCDEFGHIJ'.split('');
 
-function cellClass(
+type CellVisual = 'empty' | 'ship' | 'hit' | 'sunk' | 'miss' | 'pending' | 'preview-valid' | 'preview-invalid';
+
+function getCellVisual(
   cellState: 'empty' | 'hit' | 'miss',
   hasShip: boolean,
+  shipSunk: boolean,
   isPlayerView: boolean,
   isPreview: boolean,
-  previewValid: boolean
-): string {
-  const classes: string[] = ['cell'];
+  previewValid: boolean,
+  isPending: boolean
+): CellVisual {
+  if (isPreview) return previewValid ? 'preview-valid' : 'preview-invalid';
+  if (isPending) return 'pending';
+  if (cellState === 'hit') return shipSunk ? 'sunk' : 'hit';
+  if (cellState === 'miss') return 'miss';
+  if (isPlayerView && hasShip) return 'ship';
+  return 'empty';
+}
 
-  if (isPreview) {
-    classes.push(previewValid ? 'cell-preview-valid' : 'cell-preview-invalid');
-  } else if (cellState === 'hit') {
-    classes.push('cell-hit');
-  } else if (cellState === 'miss') {
-    classes.push('cell-miss');
-  } else if (isPlayerView && hasShip) {
-    classes.push('cell-ship');
-  } else {
-    classes.push('cell-empty');
+function describeCell(visual: CellVisual): string {
+  switch (visual) {
+    case 'hit':
+      return 'hit';
+    case 'sunk':
+      return 'sunk ship';
+    case 'miss':
+      return 'miss';
+    case 'ship':
+      return 'your ship';
+    case 'pending':
+      return 'firing';
+    default:
+      return '';
   }
+}
 
-  return classes.join(' ');
+function CellMark({ visual }: { visual: CellVisual }) {
+  switch (visual) {
+    case 'hit':
+      return <span className="mark mark-hit" aria-hidden="true" />;
+    case 'sunk':
+      return <span className="mark mark-sunk" aria-hidden="true" />;
+    case 'miss':
+      return <span className="mark mark-miss" aria-hidden="true" />;
+    case 'pending':
+      return <span className="mark mark-pending" aria-hidden="true" />;
+    case 'ship':
+      return <span className="mark mark-ship" aria-hidden="true" />;
+    default:
+      return null;
+  }
 }
 
 export function BoardGrid({
@@ -45,6 +77,9 @@ export function BoardGrid({
   label,
   isPlayerView,
   disabled = false,
+  active = false,
+  turnLabel,
+  pendingCell = null,
   previewCells = [],
   previewValid = true,
   onCellClick,
@@ -73,40 +108,46 @@ export function BoardGrid({
     for (let col = 0; col < 10; col++) {
       const cell = board.cells[row][col];
       const isPreview = previewSet.has(`${row},${col}`);
-      const isInteractive = onCellClick && !disabled && cell.state === 'empty' && !isPlayerView;
+      const isPending = pendingCell !== null && pendingCell.row === row && pendingCell.col === col;
+      const isInteractive =
+        onCellClick && !disabled && cell.state === 'empty' && !isPlayerView && !isPending;
       const isSetupTarget = onCellClick && !disabled && isPlayerView;
+      const visual = getCellVisual(
+        cell.state,
+        cell.ship !== null,
+        cell.ship?.sunk ?? false,
+        isPlayerView,
+        isPreview,
+        previewValid,
+        isPending
+      );
+      const description = describeCell(visual);
+      const coordinate = `${ROW_LABELS[row]}${col + 1}`;
       gridItems.push(
         <button
           key={`cell-${row}-${col}`}
           type="button"
-          className={cellClass(
-            cell.state,
-            cell.ship !== null,
-            isPlayerView,
-            isPreview,
-            previewValid
-          )}
-          aria-label={`${ROW_LABELS[row]}${col + 1}`}
+          className={`cell cell-${visual}${isInteractive ? ' cell-targetable' : ''}`}
+          aria-label={description ? `${coordinate}, ${description}` : coordinate}
           disabled={!isInteractive && !isSetupTarget}
           onClick={() => onCellClick && onCellClick(row, col)}
           onMouseEnter={() => onCellHover && onCellHover(row, col)}
           onMouseLeave={() => onCellLeave && onCellLeave()}
         >
-          {isPreview
-            ? ''
-            : cell.state === 'hit'
-              ? '×'
-              : cell.state === 'miss'
-                ? '•'
-                : ''}
+          {!isPreview && <CellMark visual={visual} />}
         </button>
       );
     }
   }
 
   return (
-    <div className="board-wrapper">
-      <h2 className="board-label">{label}</h2>
+    <div className={`board-wrapper${active ? ' board-active' : ''}`}>
+      <div className="board-heading">
+        <h2 className="board-label">{label}</h2>
+        {turnLabel && (
+          <span className={`board-turn-label${active ? ' is-active' : ''}`}>{turnLabel}</span>
+        )}
+      </div>
       <div className="board-grid" aria-label={label}>
         {gridItems}
       </div>
