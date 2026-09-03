@@ -105,7 +105,7 @@ function FleetStatus({ title, fleet, hideHits }: { title: string; fleet: FleetEn
           <li
             key={ship.name}
             className={`fleet-ship${ship.sunk ? ' sunk' : ''}`}
-            aria-label={`${ship.name} (${ship.length})${ship.sunk ? ' — sunk' : ''}`}
+            aria-label={`${ship.name} (${ship.length})${ship.sunk ? ', sunk' : ''}`}
           >
             <span className="fleet-ship-name">{ship.name}</span>
             <span className="ship-silhouette" aria-hidden="true">
@@ -150,7 +150,7 @@ function HowToPlay({ open }: { open?: boolean }) {
           Choose <strong>Play a Friend</strong>, then copy the invite link and send it to your opponent.
         </li>
         <li>Both players place their fleets privately and press <strong>Ready</strong>.</li>
-        <li>The host fires first; turns alternate in real time. Only shot results are shared — never ship positions.</li>
+        <li>The host fires first; turns alternate in real time. Only shot results are shared, never ship positions.</li>
       </ol>
       <p className="help-legend">
         <span className="legend-item">
@@ -255,7 +255,7 @@ function App({ transportFactory }: AppProps) {
       setAIState(newState);
       setPlayerBoard(nextBoard);
 
-      let msg = `AI fired at ${formatPosition(move)} — `;
+      let msg = `AI fired at ${formatPosition(move)}: `;
       if (fireResult.ship) {
         msg += 'hit';
         if (fireResult.sunk) {
@@ -380,7 +380,7 @@ function App({ transportFactory }: AppProps) {
       switch (event.type) {
         case 'opponent-joined':
           setMessage(
-            phaseRef.current === 'setup' ? 'Opponent connected — place your fleet and press Ready' : 'Opponent reconnected'
+            phaseRef.current === 'setup' ? 'Opponent connected. Place your fleet and press Ready' : 'Opponent reconnected'
           );
           break;
         case 'opponent-ready':
@@ -388,7 +388,7 @@ function App({ transportFactory }: AppProps) {
             setMessage(
               room.getState().localReady
                 ? 'Both fleets are ready'
-                : 'Opponent is ready — place your fleet and press Ready'
+                : 'Opponent is ready. Place your fleet and press Ready'
             );
           }
           break;
@@ -399,7 +399,7 @@ function App({ transportFactory }: AppProps) {
           const fleetSunk = isFleetSunk(nextBoard);
           void room.reportShotResult(toShotResult(result, event.row, event.col, fleetSunk));
 
-          let msg = `Opponent fired at ${formatPosition(event)} — `;
+          let msg = `Opponent fired at ${formatPosition(event)}: `;
           if (result.ship) {
             msg += result.sunk ? `hit and sunk your ${result.ship.name}!` : 'hit!';
             setSunkMessage(result.sunk ? `Your ${result.ship.name} was sunk` : '');
@@ -421,7 +421,7 @@ function App({ transportFactory }: AppProps) {
           const { result } = event;
           setEnemyBoard((board) => applyShotResult(board, result));
           setPendingShot(null);
-          let msg = `You fired at ${formatPosition(result)} — `;
+          let msg = `You fired at ${formatPosition(result)}: `;
           if (result.hit) {
             msg += result.sunk ? `hit and sunk the enemy ${result.shipName}!` : 'hit!';
             setSunkMessage(result.sunk ? `Enemy ${result.shipName} sunk` : '');
@@ -444,7 +444,7 @@ function App({ transportFactory }: AppProps) {
           setMessage(
             phaseRef.current === 'won' || phaseRef.current === 'lost'
               ? 'Opponent left the game'
-              : 'Opponent disconnected — waiting for them to rejoin'
+              : 'Opponent disconnected. Waiting for them to rejoin'
           );
           break;
       }
@@ -462,7 +462,7 @@ function App({ transportFactory }: AppProps) {
     if (roomState.localReady && roomState.opponentReady) {
       const myTurn = roomState.turn === roomState.role;
       setPhase(myTurn ? 'player' : 'opponent');
-      setMessage(myTurn ? 'Both fleets ready — your turn, fire!' : "Both fleets ready — opponent's turn");
+      setMessage(myTurn ? 'Both fleets ready. Your turn, fire!' : "Both fleets ready. Opponent's turn");
     }
   }, [isOnline, roomState, phase]);
 
@@ -508,12 +508,12 @@ function App({ transportFactory }: AppProps) {
       if (!room || localReady) return;
       void room.setReady();
       setMessage(
-        opponentReady ? 'Both fleets are ready' : 'Fleet locked in — waiting for opponent to place ships'
+        opponentReady ? 'Both fleets are ready' : 'Fleet locked in. Waiting for opponent to place ships'
       );
       return;
     }
     setPhase('player');
-    setMessage('Your turn — fire at the enemy fleet');
+    setMessage('Your turn. Fire at the enemy fleet');
   }
 
   function playAgain() {
@@ -587,7 +587,7 @@ function App({ transportFactory }: AppProps) {
       room.fire(row, col).catch(() => {
         setPendingShot(null);
         firingRef.current = false;
-        setMessage('Shot failed to send — try again');
+        setMessage('Shot failed to send. Try again');
       });
       return;
     }
@@ -598,7 +598,7 @@ function App({ transportFactory }: AppProps) {
     const { board: nextBoard, result: fireResult } = fireAt(enemyBoard, row, col);
     setEnemyBoard(nextBoard);
 
-    let msg = `You fired at ${formatPosition({ row, col })} — `;
+    let msg = `You fired at ${formatPosition({ row, col })}: `;
     if (fireResult.ship) {
       msg += fireResult.sunk ? `hit and sunk the enemy ${fireResult.ship.name}!` : 'hit!';
       setSunkMessage(fireResult.sunk ? `Enemy ${fireResult.ship.name} sunk` : '');
@@ -662,7 +662,7 @@ function App({ transportFactory }: AppProps) {
       case 'room-full':
         return { text: 'This room already has two players', tone: 'bad' };
       case 'error':
-        return { text: 'Connection error — check your network', tone: 'bad' };
+        return { text: 'Connection error. Check your network', tone: 'bad' };
     }
   }
 
@@ -710,7 +710,7 @@ function App({ transportFactory }: AppProps) {
       <div className="ranking">
         <h3 className="ranking-title">Best Wins vs AI</h3>
         {rankings.length === 0 ? (
-          <p className="ranking-empty">No wins yet — sink the enemy fleet to set a record.</p>
+          <p className="ranking-empty">No wins yet. Sink the enemy fleet to set a record.</p>
         ) : (
           <ol className="ranking-list">
             {rankings.slice(0, 5).map((r, i) => (
@@ -807,7 +807,7 @@ function App({ transportFactory }: AppProps) {
                 key={ship.name}
                 type="button"
                 className={`ship-item ${selectedShip === ship.name ? 'selected' : ''} ${placed ? 'placed' : ''}`}
-                aria-label={`${ship.name} (${ship.length})${placed ? ' — placed' : ''}`}
+                aria-label={`${ship.name} (${ship.length})${placed ? ', placed' : ''}`}
                 onClick={() => (placed ? handleRemoveShip(ship.name) : setSelectedShip(ship.name))}
                 disabled={phase !== 'setup' || localReady}
               >

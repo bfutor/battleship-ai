@@ -52,7 +52,7 @@ describe('App component', () => {
 
     fireEvent.click(startButtons[0]);
     expect(screen.getByText('Your turn')).toBeInTheDocument();
-    expect(screen.getByText(/fire at the enemy/)).toBeInTheDocument();
+    expect(screen.getByText(/Fire at the enemy/)).toBeInTheDocument();
   });
 
   it('lets the player fire a shot and advances to the AI turn', () => {
@@ -123,7 +123,7 @@ describe('online multiplayer flow', () => {
     await waitFor(() => {
       expect(within(host.container).getByText("Opponent's turn")).toBeInTheDocument();
     });
-    expect(within(host.container).getByText(/You fired at A1 — (hit!|miss\.)/)).toBeInTheDocument();
+    expect(within(host.container).getByText(/You fired at A1: (hit!|miss\.)/)).toBeInTheDocument();
     await within(guest.container).findByText(/Opponent fired at A1/);
     expect(within(guest.container).getByText('Your turn')).toBeInTheDocument();
 
@@ -134,6 +134,6 @@ describe('online multiplayer flow', () => {
 
     // Guest leaves: host sees the disconnect.
     guest.unmount();
-    await within(host.container).findByText('Opponent disconnected — waiting for them to rejoin');
+    await within(host.container).findByText('Opponent disconnected. Waiting for them to rejoin');
   });
 });
